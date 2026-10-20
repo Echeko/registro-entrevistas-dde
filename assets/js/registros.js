@@ -69,7 +69,7 @@ async function cargar() {
           '<option value="Atendido" ' + (r.estado==='Atendido'?'selected':'') + '>Atendido</option>' +
           '<option value="Derivado" ' + (r.estado==='Derivado'?'selected':'') + '>Derivado</option>' +
           '<option value="Cancelado" ' + (r.estado==='Cancelado'?'selected':'') + '>Cancelado</option>' +
-        '</select>' +
+        '</select> ' +
         '<button onclick="eliminarRegistro(' + r.id + ')" style="background:#d32f2f; padding: 4px 8px; font-size:11px; margin-left: 5px;">Eliminar</button>' +
       '</td>' +
       '</tr>';
