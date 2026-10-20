@@ -24,7 +24,6 @@ async function cargarStats() {
 cargarStats();
 
 // Envio del formulario
-// Envio del formulario
 document.getElementById('formRegistro').addEventListener('submit', async (e) => {
   e.preventDefault();
   const btn = document.getElementById('btnRegistrar');
@@ -38,13 +37,15 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
     return;
   }
 
-  // 2. Validar que la hora esté en el rango de 08:00 a 16:00
+  // 2. Capturar y formatear la hora
   let horaSeleccionada = document.getElementById('horaAtencion').value;
-// Si la hora tiene formato HH:MM (5 caracteres), le agregamos los segundos
-if (horaSeleccionada.length === 5) {
-    horaSeleccionada = horaSeleccionada + ':00';
-}
-  if (horaSeleccionada < "08:00" || horaSeleccionada > "16:00") {
+  // Si la hora tiene formato HH:MM (5 caracteres), le agregamos los segundos
+  if (horaSeleccionada.length === 5) {
+      horaSeleccionada = horaSeleccionada + ':00';
+  }
+
+  // 3. Validar que la hora esté en el rango de 08:00 a 16:00
+  if (horaSeleccionada < "08:00:00" || horaSeleccionada > "16:00:00") {
     msg.className = 'mensaje error';
     msg.textContent = 'La hora debe estar entre las 08:00 y las 16:00.';
     return;
@@ -53,7 +54,7 @@ if (horaSeleccionada.length === 5) {
   btn.disabled = true; btn.textContent = 'Guardando...';
   msg.className = 'mensaje'; msg.style.display = 'none';
 
-  // 3. Enviamos los datos a Supabase (incluyendo la hora)
+  // 4. Enviamos los datos a Supabase
   const { data, error } = await supabaseClient.rpc('registrar_entrevista', {
     p_nombre:      document.getElementById('nombre').value.trim(),
     p_ci:          document.getElementById('ci').value.trim(),
@@ -69,7 +70,7 @@ if (horaSeleccionada.length === 5) {
 
   if (error) {
     msg.className = 'mensaje error';
-    // Si la base de datos dice que la hora está ocupada (el código de error 23505)
+    // Si la base de datos dice que la hora está ocupada
     if (error.code === '23505') {
       msg.textContent = 'Esa hora ya fue reservada por otra persona. Por favor elige otra.';
     } else {
@@ -78,7 +79,8 @@ if (horaSeleccionada.length === 5) {
   } else {
     const row = Array.isArray(data) ? data[0] : data;
     msg.className = 'mensaje ok';
-    msg.innerHTML = '<strong>Turno N ' + row.turno + '</strong> registrado.<br>Hora asignada: ' + row.hora;
+    // ⚠️ AQUÍ ESTÁ EL CAMBIO: Usamos row.v_hora
+    msg.innerHTML = '<strong>Turno N ' + row.turno + '</strong> registrado.<br>Hora asignada: ' + row.v_hora;
     e.target.reset();
     cargarStats();
   }
