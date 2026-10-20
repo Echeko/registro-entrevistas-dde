@@ -1,132 +1,137 @@
-// Reloj en vivo
+// Registro público de entrevistas - DDE
+// Requiere supabase-client.js cargado antes de este archivo.
+
+const $ = (id) => document.getElementById(id);
+const form = $('formRegistro');
+const btn = $('btnRegistrar');
+const msg = $('mensaje');
+const inputFecha = $('fechaAtencion');
+
+function fechaLocalISO() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function mostrarMensaje(texto, tipo = 'error') {
+  msg.className = `mensaje ${tipo}`;
+  msg.textContent = texto;
+  msg.style.display = 'block';
+}
+
 function actualizarReloj() {
   const d = new Date();
-  document.getElementById('fechaActual').textContent =
-    d.toLocaleDateString('es-BO', { day:'2-digit', month:'long', year:'numeric' });
-  document.getElementById('horaActual').textContent =
-    d.toLocaleTimeString('es-BO');
+  if ($('fechaActual')) $('fechaActual').textContent =
+    d.toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' });
+  if ($('horaActual')) $('horaActual').textContent =
+    d.toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
-setInterval(actualizarReloj, 1000);
 actualizarReloj();
+setInterval(actualizarReloj, 1000);
 
-// Bloquear fechas pasadas en el selector
-const inputFecha = document.getElementById('fechaAtencion');
-if (inputFecha) {
-  const hoyStr = new Date().toISOString().split('T')[0];
-  inputFecha.min = hoyStr; 
-}
+if (inputFecha) inputFecha.min = fechaLocalISO();
 
-// Stats Generales
+// Solo se muestran agregados, nunca nombres o datos personales al público.
 async function cargarStats() {
-  const { count: total, error: e1 } = await supabaseClient
-    .from('entrevistas').select('*', { count:'exact', head:true });
-    
-  const { count: espera, error: e2 } = await supabaseClient
-    .from('entrevistas').select('*', { count:'exact', head:true })
-    .eq('estado', 'En espera');
-
-  if (!e1 && !e2) {
-    document.getElementById('statHoy').textContent = total ?? 0;
-    document.getElementById('statEspera').textContent = espera ?? 0;
-  } else {
-    console.error("Error al cargar stats:", e1 || e2);
+  // Se requiere crear la función SQL obtener_estadisticas_publicas() de la migración.
+  const { data, error } = await supabaseClient.rpc('obtener_estadisticas_publicas');
+  if (error) {
+    console.warn('No se pudieron cargar las estadísticas públicas:', error.message);
+    if ($('statHoy')) $('statHoy').textContent = '—';
+    if ($('statEspera')) $('statEspera').textContent = '—';
+    return;
   }
+  const stats = Array.isArray(data) ? data[0] : data;
+  if ($('statHoy')) $('statHoy').textContent = stats?.registrados ?? 0;
+  if ($('statEspera')) $('statEspera').textContent = stats?.en_espera ?? 0;
 }
 cargarStats();
 
-// Envio del formulario
-document.getElementById('formRegistro').addEventListener('submit', async (e) => {
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const btn = document.getElementById('btnRegistrar');
-  const msg = document.getElementById('mensaje');
-  
-  // 1. Capturar fecha y validar que sea día hábil
-  const fechaSeleccionada = document.getElementById('fechaAtencion').value;
-  if (!fechaSeleccionada) {
-    msg.className = 'mensaje error';
-    msg.textContent = 'Debe seleccionar una fecha.';
-    return;
-  }
-  
-  const [year, month, day] = fechaSeleccionada.split('-');
-  const fechaObj = new Date(year, month - 1, day); 
-  
-  if (fechaObj.getDay() === 0 || fechaObj.getDay() === 6) {
-    msg.className = 'mensaje error';
-    msg.textContent = 'Solo se permiten registros de Lunes a Viernes.';
-    return;
-  }
+  msg.style.display = 'none';
 
-  // 2. Capturar y formatear la hora
-  let horaSeleccionada = document.getElementById('horaAtencion').value;
-  if (horaSeleccionada.length === 5) {
-      horaSeleccionada = horaSeleccionada + ':00';
-  }
+  if (!form.reportValidity()) return;
 
-  if (horaSeleccionada < "08:00:00" || horaSeleccionada > "16:00:00") {
-    msg.className = 'mensaje error';
-    msg.textContent = 'La hora debe estar entre las 08:00 y las 16:00.';
-    return;
-  }
+  const nombre = $('nombre').value.trim().replace(/\s+/g, ' ');
+  const ci = $('ci').value.trim();
+  const telefono = $('telefono').value.trim();
+  const motivo = $('motivo').value;
+  const rol = $('rol').value;
+  const area = $('area').value;
+  const fecha = $('fechaAtencion').value;
+  let hora = $('horaAtencion').value;
+  const observaciones = $('observaciones').value.trim();
 
-  // 3. Validaciones de CI y Celular
-  const ciVal = document.getElementById('ci').value.trim();
-  const telVal = document.getElementById('telefono').value.trim();
+  if (nombre.length < 3) return mostrarMensaje('Ingrese el nombre completo (mínimo 3 caracteres).');
+  if (!/^\d{6,8}$/.test(ci)) return mostrarMensaje('El CI debe tener entre 6 y 8 números.');
+  if (telefono && !/^\d{8}$/.test(telefono)) return mostrarMensaje('El celular debe tener exactamente 8 números.');
+  if (!fecha) return mostrarMensaje('Seleccione la fecha deseada.');
+  if (fecha < fechaLocalISO()) return mostrarMensaje('La fecha no puede ser anterior a hoy.');
 
-  if (!/^\d{6,8}$/.test(ciVal)) {
-    msg.className = 'mensaje error';
-    msg.textContent = 'El CI debe tener entre 6 y 8 números.';
-    return;
-  }
+  // Evita problemas de zona horaria al interpretar la fecha seleccionada.
+  const [yyyy, mm, dd] = fecha.split('-').map(Number);
+  const diaSemana = new Date(yyyy, mm - 1, dd).getDay();
+  if (diaSemana === 0 || diaSemana === 6) return mostrarMensaje('Solo se permiten solicitudes de lunes a viernes.');
+  if (!hora) return mostrarMensaje('Seleccione la hora deseada.');
+  if (hora < '08:00' || hora > '16:00') return mostrarMensaje('La hora debe estar entre las 08:00 y las 16:00.');
+  if (observaciones.length < 5) return mostrarMensaje('Describa brevemente su caso (mínimo 5 caracteres).');
+  if (observaciones.length > 150) return mostrarMensaje('La descripción no debe superar 150 caracteres.');
 
-  if (telVal !== '' && !/^\d{8}$/.test(telVal)) {
-    msg.className = 'mensaje error';
-    msg.textContent = 'El Celular debe tener exactamente 8 números.';
-    return;
-  }
+  if (hora.length === 5) hora += ':00';
 
-  // 4. Validar descripción del caso
-  const descripcionVal = document.getElementById('observaciones').value.trim();
-  if (descripcionVal.length < 5) {
-    msg.className = 'mensaje error';
-    msg.textContent = 'Por favor, describa brevemente su caso (mínimo 5 letras).';
-    return;
-  }
+  btn.disabled = true;
+  const textoOriginal = btn.textContent;
+  btn.textContent = 'Registrando...';
 
-  btn.disabled = true; btn.textContent = 'Guardando...';
-  msg.className = 'mensaje'; msg.style.display = 'none';
+  try {
+    const { data, error } = await supabaseClient.rpc('registrar_entrevista', {
+      p_nombre: nombre,
+      p_ci: ci,
+      p_telefono: telefono || null,
+      p_motivo: motivo,
+      p_funcionario: 'Por asignar',
+      p_area: area,
+      p_observaciones: observaciones,
+      p_hora: hora,
+      p_rol: rol,
+      p_fecha: fecha
+    });
 
-  // 5. Enviamos los datos a Supabase
-  const { data, error } = await supabaseClient.rpc('registrar_entrevista', {
-    p_nombre:      document.getElementById('nombre').value.trim(),
-    p_ci:          ciVal,
-    p_telefono:    telVal,
-    p_motivo:      document.getElementById('motivo').value,
-    p_funcionario: "Por asignar", // Ponemos esto por defecto para que no falle la base de datos
-    p_area:        document.getElementById('area').value,
-    p_observaciones: descripcionVal,
-    p_hora:        horaSeleccionada,
-    p_rol:         document.getElementById('rol').value,
-    p_fecha:       fechaSeleccionada
-  });
-
-  btn.disabled = false; btn.textContent = 'Registrar Entrevista';
-
-  if (error) {
-    msg.className = 'mensaje error';
-    if (error.code === '23505') {
-      msg.textContent = 'Esa hora ya fue reservada para ese día. Por favor elige otra.';
-    } else {
-      msg.textContent = 'Error: ' + error.message;
+    if (error) {
+      console.error('Error al registrar entrevista:', error);
+      if (error.code === '23505') {
+        mostrarMensaje('Ese horario ya tiene una solicitud. Elija otra hora.');
+      } else if (error.code === 'PGRST202' || error.code === '42883') {
+        mostrarMensaje('La base de datos necesita actualizarse. Informe al administrador del sistema.');
+      } else {
+        mostrarMensaje('No se pudo registrar la solicitud. Verifique los datos e inténtelo nuevamente.');
+      }
+      return;
     }
-  } else {
-    const row = Array.isArray(data) ? data[0] : data;
+
+    const fila = Array.isArray(data) ? data[0] : data;
+    if (!fila) {
+      mostrarMensaje('La solicitud se envió, pero no se recibió el número de turno. Consulte al administrador.');
+      return;
+    }
+
+    // textContent evita insertar datos procedentes de usuarios como HTML.
     msg.className = 'mensaje ok';
-    msg.innerHTML = '<strong>Turno N ' + row.turno + '</strong> registrado.<br>Para el día: ' + fechaSeleccionada + ' a las ' + row.v_hora;
-    
-    e.target.reset();
-    inputFecha.min = new Date().toISOString().split('T')[0];
-    
-    setTimeout(() => { cargarStats(); }, 500); 
+    msg.replaceChildren();
+    const strong = document.createElement('strong');
+    strong.textContent = `Solicitud registrada. Turno N.º ${fila.turno}.`;
+    const detalle = document.createElement('p');
+    detalle.textContent = `Fecha solicitada: ${fecha} a las ${hora.slice(0, 5)}. La atención queda sujeta a confirmación de la Dirección Distrital.`;
+    msg.append(strong, detalle);
+    msg.style.display = 'block';
+    form.reset();
+    if (inputFecha) inputFecha.min = fechaLocalISO();
+    await cargarStats();
+  } catch (err) {
+    console.error('Error inesperado:', err);
+    mostrarMensaje('Ocurrió un error de conexión. Revise su internet e inténtelo nuevamente.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = textoOriginal;
   }
 });
