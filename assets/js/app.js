@@ -9,7 +9,7 @@ function actualizarReloj() {
 setInterval(actualizarReloj, 1000);
 actualizarReloj();
 
-// Stats Generales (Cuenta todos los registros para evitar errores de zona horaria)
+// Stats Generales (Cuenta todos los registros)
 async function cargarStats() {
   const { count: total, error: e1 } = await supabaseClient
     .from('entrevistas').select('*', { count:'exact', head:true });
@@ -54,14 +54,32 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
     return;
   }
 
+  // 4. NUEVAS VALIDACIONES: CI y Celular
+  const ciVal = document.getElementById('ci').value.trim();
+  const telVal = document.getElementById('telefono').value.trim();
+
+  // Valida que el CI tenga entre 6 y 8 números
+  if (!/^\d{6,8}$/.test(ciVal)) {
+    msg.className = 'mensaje error';
+    msg.textContent = 'El CI debe tener entre 6 y 8 números (sin letras ni espacios).';
+    return;
+  }
+
+  // Valida que si escriben celular, tenga exactamente 8 números
+  if (telVal !== '' && !/^\d{8}$/.test(telVal)) {
+    msg.className = 'mensaje error';
+    msg.textContent = 'El Celular debe tener exactamente 8 números.';
+    return;
+  }
+
   btn.disabled = true; btn.textContent = 'Guardando...';
   msg.className = 'mensaje'; msg.style.display = 'none';
 
-  // 4. Enviamos los datos a Supabase
+  // 5. Enviamos los datos a Supabase
   const { data, error } = await supabaseClient.rpc('registrar_entrevista', {
     p_nombre:      document.getElementById('nombre').value.trim(),
-    p_ci:          document.getElementById('ci').value.trim(),
-    p_telefono:    document.getElementById('telefono').value.trim(),
+    p_ci:          ciVal,
+    p_telefono:    telVal,
     p_motivo:      document.getElementById('motivo').value,
     p_funcionario: document.getElementById('funcionario').value.trim(),
     p_area:        document.getElementById('area').value.trim(),
