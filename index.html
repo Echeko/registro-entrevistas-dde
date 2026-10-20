@@ -55,11 +55,18 @@
       <div class="campo"><label>Funcionario que atiende *</label>
         <input type="text" id="funcionario" required maxlength="120"></div>
         
-      <!-- CAMPO RECUPERADO: Hora de atención -->
+      <!-- CAMPO DE FECHA -->
       <div class="campo">
         <label>Fecha de atención deseada *</label>
         <input type="date" id="fechaAtencion" required>
-        <small style="color:#777; font-size:11px; margin-top:3px;">Seleccione de Lunes a Viernes</small>
+        <small style="color:#777; font-size:11px; margin-top:3px;">Elija un día hábil (Lun a Vie)</small>
+      </div>
+
+      <!-- CAMPO DE HORA (RECUPERADO) -->
+      <div class="campo">
+        <label>Hora de atención deseada *</label>
+        <input type="time" id="horaAtencion" min="08:00" max="16:00" required>
+        <small style="color:#777; font-size:11px; margin-top:3px;">Horario: 08:00 a 16:00</small>
       </div>
       
     </div>
@@ -76,7 +83,7 @@
   <a class="link-admin" href="admin/login.html">Acceso Administrador</a>
 </div>
 <script src="assets/js/supabase-client.js"></script>
-<!-- El ?v=107 obliga al navegador a actualizar el archivo -->
-<script src="assets/js/app.js?v=109"></script>
+<!-- Subimos la versión para forzar la actualización -->
+<script src="assets/js/app.js?v=110"></script>
 </body>
 </html>
