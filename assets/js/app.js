@@ -76,12 +76,17 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
     } else {
       msg.textContent = 'Error: ' + error.message;
     }
-  } else {
+} else {
     const row = Array.isArray(data) ? data[0] : data;
     msg.className = 'mensaje ok';
-    // ⚠️ AQUÍ ESTÁ EL CAMBIO: Usamos row.v_hora
     msg.innerHTML = '<strong>Turno N ' + row.turno + '</strong> registrado.<br>Hora asignada: ' + row.v_hora;
+    
     e.target.reset();
-    cargarStats();
+    
+    // ⚠️ AQUÍ ESTÁ LA MAGIA: Forzamos a que se actualicen los contadores
+    // Le damos medio segundo a Supabase para que guarde y luego actualizamos
+    setTimeout(() => {
+        cargarStats();
+    }, 500); 
   }
 });
