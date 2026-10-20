@@ -102,7 +102,7 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
   } else {
     const row = Array.isArray(data) ? data[0] : data;
     msg.className = 'mensaje ok';
-    msg.innerHTML = '<strong>Turno N ' + row.turno + '</strong> registrado.<br>Hora asignada: ' + row.v_hora;
+    msg.innerHTML = '<strong>Turno N ' + row.turno + '</strong> registrado.<br>Fecha: ' + fechaSeleccionada + ' a las ' + row.v_hora;
     
     e.target.reset();
     
