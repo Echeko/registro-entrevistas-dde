@@ -12,24 +12,20 @@
   <header>
     <h1>Direccion Distrital de Educacion</h1>
     <h2>Registro Digital de Entrevistas</h2>
-	<!-- Contadores ocultos temporalmente mientras se repara el código
-	<div class="stats" id="stats">
- 	<div class="stat"><strong id="statHoy">-</strong><span>Registrados hoy</span></div>
-	<div class="stat"><strong id="statEspera">-</strong><span>En espera</span></div>
-	</div>
-	-->
+    <div class="stats" id="stats">
+      <div class="stat"><strong id="statHoy">-</strong><span>Registrados hoy</span></div>
+      <div class="stat"><strong id="statEspera">-</strong><span>En espera</span></div>
+    </div>
   </header>
 
   <form id="formRegistro" autocomplete="off">
     <div class="grid-2">
       <div class="campo"><label>Nombre completo *</label>
         <input type="text" id="nombre" required minlength="3" maxlength="150"></div>
-  <div class="campo"><label>CI / Documento *</label>
-  <!-- De 6 a 8 números -->
-  <input type="text" id="ci" required maxlength="8" minlength="6" pattern="[0-9]{6,8}" title="El CI debe tener entre 6 y 8 números" placeholder="Ej: 123456"></div>
-  <div class="campo"><label>Celular</label>
-  <!-- Exactamente 8 números -->
-  <input type="tel" id="telefono" maxlength="8" minlength="8" pattern="[0-9]{8}" title="El celular debe tener exactamente 8 números" placeholder="Ej: 71234567"></div>
+      <div class="campo"><label>CI / Documento *</label>
+        <input type="text" id="ci" required maxlength="8" minlength="6" pattern="[0-9]{6,8}" title="El CI debe tener entre 6 y 8 números" placeholder="Ej: 123456"></div>
+      <div class="campo"><label>Celular</label>
+        <input type="tel" id="telefono" maxlength="8" minlength="8" pattern="[0-9]{8}" title="El celular debe tener exactamente 8 números" placeholder="Ej: 71234567"></div>
       <div class="campo"><label>Motivo *</label>
         <select id="motivo" required>
           <option value="">-- Seleccione --</option>
@@ -40,12 +36,19 @@
           <option>Denuncia</option>
           <option>Otro</option>
         </select></div>
+      <div class="campo">
+        <label>Usted es: *</label>
+        <select id="rol" required>
+          <option value="">-- Seleccione --</option>
+          <option value="Padre/Madre/Tutor">Padre, Madre o Tutor</option>
+          <option value="Estudiante">Estudiante</option>
+          <option value="Maestro/Administrativo">Maestro / Personal Administrativo</option>
+          <option value="Director">Director de Unidad Educativa</option>
+          <option value="Externo/Otro">Externo / Otro</option>
+        </select>
+      </div>
       <div class="campo"><label>Area / Direccion</label>
         <input type="text" id="area" maxlength="100"></div>
-	<div class="campo"><label>Hora de atención deseada *</label>
-  	<input type="time" id="horaAtencion" min="08:00" max="16:00" required>
-  	<small style="color:#777; font-size:11px; margin-top:3px;">Horario de atención: Lunes a Viernes de 08:00 a 16:00 (Continuo)</small>
-	</div>
       <div class="campo"><label>Funcionario que atiende *</label>
         <input type="text" id="funcionario" required maxlength="120"></div>
     </div>
@@ -62,6 +65,6 @@
   <a class="link-admin" href="admin/login.html">Acceso Administrador</a>
 </div>
 <script src="assets/js/supabase-client.js"></script>
-<script src="assets/js/app.js?v=5"></script>
+<script src="assets/js/app.js?v=105"></script>
 </body>
 </html>
