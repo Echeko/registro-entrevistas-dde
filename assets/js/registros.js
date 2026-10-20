@@ -48,8 +48,8 @@ async function cargar() {
   tbody.innerHTML = '';
   
 cacheRegistros.forEach(r => {
-  // Cortamos los microsegundos de la hora
-  const horaCorta = r.hora ? r.hora.split('.')[0] : ''; 
+// Cortamos el string de la hora para quedarnos solo con las horas y minutos (HH:MM)
+const horaCorta = r.hora ? r.hora.slice(0, 5) : '';
   
   // Mostramos toda la observación. Si no hay, ponemos un guion.
   const obs = r.observaciones || '-';
