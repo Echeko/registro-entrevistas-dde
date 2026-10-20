@@ -48,7 +48,7 @@ async function cargar() {
   tbody.innerHTML = '';
   
   cacheRegistros.forEach(r => {
-    const badge = 'b-' + r.estado.toLowerCase().replace(/\s/g,'');
+    // Formato de hora limpio HH:MM
     const horaCorta = r.hora ? r.hora.split('.')[0].slice(0, 5) : ''; 
     const obs = r.observaciones || '-';
     
@@ -59,36 +59,44 @@ async function cargar() {
       '<td>' + r.nombre + '</td>' +
       '<td>' + r.ci + '</td>' +
       '<td>' + (r.telefono || '-') + '</td>' +
-      '<td>' + (r.rol || '-') + '</td>' +
+      '<td>' + (r.rol || '-') + '</td>' + 
       '<td>' + r.motivo + '</td>' +
       '<td>' + r.funcionario + '</td>' +
       '<td style="white-space: normal; word-wrap: break-word; min-width: 200px; text-align: justify;">' + obs + '</td>' +
       '<td>' +
-        '<select onchange="cambiarEstado(' + r.id + ', this.value, this)">' +
+        '<select onchange="cambiarEstado(' + r.id + ', this.value, this)" style="margin-bottom:5px;">' +
           '<option value="En espera" ' + (r.estado==='En espera'?'selected':'') + '>En espera</option>' +
           '<option value="Atendido" ' + (r.estado==='Atendido'?'selected':'') + '>Atendido</option>' +
           '<option value="Derivado" ' + (r.estado==='Derivado'?'selected':'') + '>Derivado</option>' +
           '<option value="Cancelado" ' + (r.estado==='Cancelado'?'selected':'') + '>Cancelado</option>' +
-        '</select>' +
+        '</select><br>' +
+        '<button onclick="eliminarRegistro(' + r.id + ')" style="background:#d32f2f; padding: 4px 8px; font-size:11px;">Eliminar</button>' +
       '</td>' +
       '</tr>';
   });
 }
 
-// Función para actualizar el estado en Supabase
+// Función para actualizar el estado
 window.cambiarEstado = async function(id, nuevoEstado, selectElement) {
   selectElement.disabled = true;
-  
-  const { error } = await supabaseClient
-    .from('entrevistas')
-    .update({ estado: nuevoEstado })
-    .eq('id', id);
-    
+  const { error } = await supabaseClient.from('entrevistas').update({ estado: nuevoEstado }).eq('id', id);
   if (error) {
     alert('Error al cambiar estado: ' + error.message);
     cargar();
   } else {
     selectElement.disabled = false;
+  }
+}
+
+// Función para eliminar un registro
+window.eliminarRegistro = async function(id) {
+  if (!confirm('¿Estás seguro de que deseas eliminar este registro permanentemente?')) return;
+  
+  const { error } = await supabaseClient.from('entrevistas').delete().eq('id', id);
+  if (error) {
+    alert('Error al eliminar: ' + error.message);
+  } else {
+    cargar(); // Recarga la tabla
   }
 }
 
@@ -104,17 +112,8 @@ document.getElementById('btnExportar').addEventListener('click', () => {
   const head = 'Turno,Fecha,Hora,Nombre,CI,Celular,Rol,Motivo,Funcionario,Observaciones,Estado\n';
   const filas = cacheRegistros.map(r =>
     [
-      r.turno, 
-      r.fecha, 
-      r.hora ? r.hora.split('.')[0] : '', 
-      r.nombre, 
-      r.ci, 
-      r.telefono || '',
-      r.rol || '',
-      r.motivo, 
-      r.funcionario, 
-      r.observaciones || '',
-      r.estado
+      r.turno, r.fecha, r.hora ? r.hora.split('.')[0] : '', r.nombre, r.ci, r.telefono || '',
+      r.rol || '', r.motivo, r.funcionario, r.observaciones || '', r.estado
     ]
     .map(v => '"' + (v==null?'':v).toString().replace(/"/g,'""') + '"').join(',')
   ).join('\n');
