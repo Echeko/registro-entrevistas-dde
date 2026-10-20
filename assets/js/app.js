@@ -39,7 +39,11 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
   }
 
   // 2. Validar que la hora esté en el rango de 08:00 a 16:00
-  const horaSeleccionada = document.getElementById('horaAtencion').value;
+  let horaSeleccionada = document.getElementById('horaAtencion').value;
+// Si la hora tiene formato HH:MM (5 caracteres), le agregamos los segundos
+if (horaSeleccionada.length === 5) {
+    horaSeleccionada = horaSeleccionada + ':00';
+}
   if (horaSeleccionada < "08:00" || horaSeleccionada > "16:00") {
     msg.className = 'mensaje error';
     msg.textContent = 'La hora debe estar entre las 08:00 y las 16:00.';
