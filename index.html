@@ -49,11 +49,22 @@
         </select>
       </div>
       
-      <div class="campo"><label>Area / Direccion</label>
-        <input type="text" id="area" maxlength="100"></div>
-        
-      <div class="campo"><label>Funcionario que atiende *</label>
-        <input type="text" id="funcionario" required maxlength="120"></div>
+      <!-- LISTA DE ÁREAS DE DESTINO ACTUALIZADA -->
+      <div class="campo">
+        <label>Funcionario o área de destino *</label>
+        <select id="area" required>
+          <option value="">-- Seleccione el área --</option>
+          <option value="Dirección">Dirección</option>
+          <option value="Secretaría">Secretaría</option>
+          <option value="Recursos Humanos">Recursos Humanos</option>
+          <option value="Asesoría Legal">Asesoría Legal</option>
+          <option value="Sistema de Información Educativa">Sistema de Información Educativa</option>
+          <option value="Seguimiento">Seguimiento</option>
+          <option value="Caja">Caja</option>
+          <option value="Alternativa y Especial">Alternativa y Especial</option>
+          <option value="Orientación">Orientación</option>
+        </select>
+      </div>
         
       <div class="campo">
         <label>Fecha de atención deseada *</label>
@@ -66,7 +77,6 @@
         <input type="time" id="horaAtencion" min="08:00" max="16:00" required>
         <small style="color:#777; font-size:11px; margin-top:3px;">Horario: 08:00 a 16:00</small>
       </div>
-      
     </div>
     
     <div class="campo">
@@ -83,7 +93,7 @@
   <a class="link-admin" href="admin/login.html">Acceso Administrador</a>
 </div>
 <script src="assets/js/supabase-client.js"></script>
-<!-- Versión actualizada a 111 para forzar el cambio -->
-<script src="assets/js/app.js?v=111"></script>
+<!-- Versión actualizada a 113 -->
+<script src="assets/js/app.js?v=114"></script>
 </body>
 </html>
