@@ -15,41 +15,48 @@
     <a class="btn-salir" href="#" id="btnSalir">Salir</a>
   </div>
 </nav>
+
 <main class="contenedor">
   <h1>Registros de Entrevistas</h1>
+
   <form class="filtros" id="formFiltros">
-  <select id="tipo">
-  <option value="todos">Todos los registros</option>
-  <option value="dia">Por día</option>
-  <option value="mes">Por mes</option>
-  <option value="anio">Por año</option>
-  </select>
+    <select id="tipo">
+      <option value="todos">Todos los registros</option>
+      <option value="dia">Por día</option>
+      <option value="mes">Por mes</option>
+      <option value="anio">Por año</option>
+    </select>
     <input type="date" id="fechaDia">
     <input type="month" id="fechaMes">
     <input type="number" id="fechaAnio" min="2020" max="2100">
     <button type="submit">Buscar</button>
     <button type="button" id="btnExportar" style="background:#2e7d32;">Exportar CSV</button>
   </form>
+
   <p><strong>Total: <span id="total">0</span> registros</strong></p>
+
   <table>
     <thead>
-  <tr>
-    <th>Turno</th>
-    <th>Fecha</th>
-    <th>Hora</th>
-    <th>Nombre</th>
-    <th>CI</th>
-    <th>Celular</th> <!-- Nueva columna -->
-    <th>Motivo</th>
-    <th>Funcionario</th>
-    <th style="width: 250px; max-width: 250px;">Observaciones</th>
-    <th>Estado</th>
-  </tr>
-</thead>
+      <tr>
+        <th>Turno</th>
+        <th>Fecha</th>
+        <th>Hora</th>
+        <th>Nombre</th>
+        <th>CI</th>
+        <th>Celular</th>
+        <th>Rol</th>
+        <th>Motivo</th>
+        <th>Funcionario</th>
+        <th>Observaciones</th>
+        <th>Estado / Acciones</th>
+      </tr>
+    </thead>
     <tbody id="tablaRegistros"></tbody>
   </table>
 </main>
+
 <script src="../assets/js/supabase-client.js"></script>
-<script src="../assets/js/registros.js"></script>
+<!-- Cambiamos la versión para forzar actualización -->
+<script src="../assets/js/registros.js?v=108"></script>
 </body>
 </html>
