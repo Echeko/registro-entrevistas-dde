@@ -86,7 +86,21 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
     // ⚠️ AQUÍ ESTÁ LA MAGIA: Forzamos a que se actualicen los contadores
     // Le damos medio segundo a Supabase para que guarde y luego actualizamos
     setTimeout(() => {
-        cargarStats();
+        // Stats generales (sin filtro de fecha)
+async function cargarStats() {
+  // Contamos TODOS los registros
+  const { count: total } = await supabaseClient
+    .from('entrevistas').select('*', { count:'exact', head:true });
+    
+  // Contamos TODOS los que están en espera
+  const { count: espera } = await supabaseClient
+    .from('entrevistas').select('*', { count:'exact', head:true })
+    .eq('estado', 'En espera');
+
+  document.getElementById('statHoy').textContent = total ?? 0;
+  document.getElementById('statEspera').textContent = espera ?? 0;
+}
+cargarStats();
     }, 500); 
   }
 });
