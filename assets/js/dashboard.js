@@ -11,7 +11,12 @@ document.getElementById('btnSalir').addEventListener('click', async (e) => {
 });
 
 (async () => {
-  const hoy = new Date().toISOString().split('T')[0];
+  // Obtenemos la fecha local correcta
+const d = new Date();
+const anio = d.getFullYear();
+const mes = String(d.getMonth() + 1).padStart(2, '0');
+const dia = String(d.getDate()).padStart(2, '0');
+const hoy = `${anio}-${mes}-${dia}`;
   const mes = hoy.slice(0, 7);
   const anio = hoy.slice(0, 4);
   const base = () => supabaseClient.from('entrevistas').select('*', { count:'exact', head:true });
