@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - DDE</title>
+  <link rel="stylesheet" href="../assets/css/estilos.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<nav class="navbar">
+  <span class="brand">DDE - Panel Admin</span>
+  <div class="links">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="registros.html">Registros</a>
+    <span id="usuario"></span>
+    <a class="btn-salir" href="#" id="btnSalir">Salir</a>
+  </div>
+</nav>
+<main class="contenedor">
+  <h1>Panel de Control</h1>
+  <div class="kpis">
+    <div class="kpi"><span>Hoy</span><strong id="kHoy">-</strong></div>
+    <div class="kpi"><span>Este mes</span><strong id="kMes">-</strong></div>
+    <div class="kpi"><span>Este ano</span><strong id="kAnio">-</strong></div>
+    <div class="kpi verde"><span>En espera hoy</span><strong id="kEspera">-</strong></div>
+    <div class="kpi azul"><span>Atendidos hoy</span><strong id="kAtendido">-</strong></div>
+  </div>
+  <h2>Ultimos 5 registros</h2>
+  <table>
+    <thead><tr>
+      <th>Turno</th><th>Fecha</th><th>Hora</th><th>Nombre</th>
+      <th>Motivo</th><th>Estado</th>
+    </tr></thead>
+    <tbody id="tablaUltimos"></tbody>
+  </table>
+</main>
+<script src="../assets/js/supabase-client.js"></script>
+<script src="../assets/js/dashboard.js"></script>
+</body>
+</html>

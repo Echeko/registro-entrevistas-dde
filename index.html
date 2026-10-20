@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro de Entrevistas - DDE</title>
+  <link rel="stylesheet" href="assets/css/estilos.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div class="contenedor">
+  <header>
+    <h1>Direccion Distrital de Educacion</h1>
+    <h2>Registro Digital de Entrevistas</h2>
+    <div class="stats" id="stats">
+      <div class="stat"><strong id="statHoy">-</strong><span>Registrados hoy</span></div>
+      <div class="stat"><strong id="statEspera">-</strong><span>En espera</span></div>
+    </div>
+  </header>
+
+  <form id="formRegistro" autocomplete="off">
+    <div class="grid-2">
+      <div class="campo"><label>Nombre completo *</label>
+        <input type="text" id="nombre" required minlength="3" maxlength="150"></div>
+      <div class="campo"><label>CI / Documento *</label>
+        <input type="text" id="ci" required maxlength="30"></div>
+      <div class="campo"><label>Telefono</label>
+        <input type="tel" id="telefono" maxlength="30"></div>
+      <div class="campo"><label>Motivo *</label>
+        <select id="motivo" required>
+          <option value="">-- Seleccione --</option>
+          <option>Consulta</option>
+          <option>Reclamo</option>
+          <option>Entrega de documentos</option>
+          <option>Solicitud de informacion</option>
+          <option>Denuncia</option>
+          <option>Otro</option>
+        </select></div>
+      <div class="campo"><label>Area / Direccion</label>
+        <input type="text" id="area" maxlength="100"></div>
+      <div class="campo"><label>Funcionario que atiende *</label>
+        <input type="text" id="funcionario" required maxlength="120"></div>
+    </div>
+    <div class="campo">
+      <label>Observaciones</label>
+      <textarea id="observaciones" rows="3" maxlength="500"></textarea>
+    </div>
+    <div class="fecha-hora">
+      Fecha: <span id="fechaActual"></span> | Hora: <span id="horaActual"></span>
+    </div>
+    <button type="submit" id="btnRegistrar">Registrar Entrevista</button>
+  </form>
+  <div id="mensaje" class="mensaje"></div>
+  <a class="link-admin" href="admin/login.html">Acceso Administrador</a>
+</div>
+<script src="assets/js/supabase-client.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
