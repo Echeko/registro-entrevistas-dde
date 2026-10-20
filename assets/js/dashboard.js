@@ -30,10 +30,13 @@ document.getElementById('btnSalir').addEventListener('click', async (e) => {
   const tbody = document.getElementById('tablaUltimos');
   (data || []).forEach(r => {
     const badge = 'b-' + r.estado.toLowerCase().replace(/\s/g,'');
+    // ⚠️ AQUÍ ESTÁ EL CAMBIO: Usamos .slice(0, 5) para cortar en HH:MM
+    const horaCorta = r.hora ? r.hora.slice(0, 5) : ''; 
+    
     tbody.innerHTML += '<tr>' +
       '<td><strong>#' + r.turno + '</strong></td>' +
       '<td>' + r.fecha + '</td>' +
-      '<td>' + r.hora.split('.')[0] + '</td>' +
+      '<td>' + horaCorta + '</td>' +
       '<td>' + r.nombre + '</td>' +
       '<td>' + r.motivo + '</td>' +
       '<td><span class="badge ' + badge + '">' + r.estado + '</span></td>' +
