@@ -48,7 +48,6 @@ async function cargar() {
   tbody.innerHTML = '';
   
   cacheRegistros.forEach(r => {
-    // Formato de hora limpio HH:MM
     const horaCorta = r.hora ? r.hora.split('.')[0].slice(0, 5) : ''; 
     const obs = r.observaciones || '-';
     
@@ -69,8 +68,8 @@ async function cargar() {
           '<option value="Atendido" ' + (r.estado==='Atendido'?'selected':'') + '>Atendido</option>' +
           '<option value="Derivado" ' + (r.estado==='Derivado'?'selected':'') + '>Derivado</option>' +
           '<option value="Cancelado" ' + (r.estado==='Cancelado'?'selected':'') + '>Cancelado</option>' +
-        '</select> ' +
-        '<button onclick="eliminarRegistro(' + r.id + ')" style="background:#d32f2f; padding: 4px 8px; font-size:11px; margin-left: 5px;">Eliminar</button>' +
+        '</select><br>' +
+        '<button onclick="eliminarRegistro(' + r.id + ')" style="background:#d32f2f; padding: 4px 8px; font-size:11px;">Eliminar</button>' +
       '</td>' +
       '</tr>';
   });
@@ -96,7 +95,7 @@ window.eliminarRegistro = async function(id) {
   if (error) {
     alert('Error al eliminar: ' + error.message);
   } else {
-    cargar(); // Recarga la tabla
+    cargar(); 
   }
 }
 
@@ -109,7 +108,7 @@ document.getElementById('formFiltros').addEventListener('submit', (e) => {
 // Exportar a CSV
 document.getElementById('btnExportar').addEventListener('click', () => {
   if (!cacheRegistros.length) return alert('No hay registros.');
-  const head = 'Turno,Fecha,Hora,Nombre,CI,Celular,Rol,Motivo,Funcionario,Observaciones,Estado\n';
+  const head = 'Turno,Fecha,Hora,Nombre,CI,Celular,Rol,Motivo,Funcionario,Descripcion,Estado\n';
   const filas = cacheRegistros.map(r =>
     [
       r.turno, r.fecha, r.hora ? r.hora.split('.')[0] : '', r.nombre, r.ci, r.telefono || '',
