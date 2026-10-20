@@ -58,14 +58,12 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
   const ciVal = document.getElementById('ci').value.trim();
   const telVal = document.getElementById('telefono').value.trim();
 
-  // Valida que el CI tenga entre 6 y 8 números
   if (!/^\d{6,8}$/.test(ciVal)) {
     msg.className = 'mensaje error';
     msg.textContent = 'El CI debe tener entre 6 y 8 números (sin letras ni espacios).';
     return;
   }
 
-  // Valida que si escriben celular, tenga exactamente 8 números
   if (telVal !== '' && !/^\d{8}$/.test(telVal)) {
     msg.className = 'mensaje error';
     msg.textContent = 'El Celular debe tener exactamente 8 números.';
@@ -75,7 +73,7 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
   btn.disabled = true; btn.textContent = 'Guardando...';
   msg.className = 'mensaje'; msg.style.display = 'none';
 
-  // 5. Enviamos los datos a Supabase
+  // 5. Enviamos los datos a Supabase (Incluyendo el Rol)
   const { data, error } = await supabaseClient.rpc('registrar_entrevista', {
     p_nombre:      document.getElementById('nombre').value.trim(),
     p_ci:          ciVal,
@@ -84,7 +82,8 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
     p_funcionario: document.getElementById('funcionario').value.trim(),
     p_area:        document.getElementById('area').value.trim(),
     p_observaciones: document.getElementById('observaciones').value.trim(),
-    p_hora:        horaSeleccionada
+    p_hora:        horaSeleccionada,
+    p_rol:         document.getElementById('rol').value
   });
 
   btn.disabled = false; btn.textContent = 'Registrar Entrevista';
@@ -103,9 +102,6 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
     
     e.target.reset();
     
-    // Actualizamos los contadores inmediatamente
-    setTimeout(() => {
-        cargarStats();
-    }, 500); 
+    setTimeout(() => { cargarStats(); }, 500); 
   }
 });
