@@ -15,9 +15,9 @@ document.getElementById('btnSalir').addEventListener('click', async (e) => {
 
 // Establecer fechas por defecto
 const hoy = new Date().toISOString().split('T')[0];
-//document.getElementById('fechaDia').value = hoy;
-//document.getElementById('fechaMes').value = hoy.slice(0,7);
-//document.getElementById('fechaAnio').value = hoy.slice(0,4);
+document.getElementById('fechaDia').value = hoy;
+document.getElementById('fechaMes').value = hoy.slice(0,7);
+document.getElementById('fechaAnio').value = hoy.slice(0,4);
 
 // Función principal para cargar la tabla
 async function cargar() {
@@ -47,40 +47,37 @@ async function cargar() {
   const tbody = document.getElementById('tablaRegistros');
   tbody.innerHTML = '';
   
-cacheRegistros.forEach(r => {
-// Cortamos el string de la hora para quedarnos solo con las horas y minutos (HH:MM)
-const horaCorta = r.hora ? r.hora.slice(0, 5) : '';
-  
-  // Mostramos toda la observación. Si no hay, ponemos un guion.
-  const obs = r.observaciones || '-';
-  
-  tbody.innerHTML += '<tr>' +
-    '<td><strong>#' + r.turno + '</strong></td>' +
-    '<td>' + r.fecha + '</td>' +
-    '<td>' + horaCorta + '</td>' +
-    '<td>' + r.nombre + '</td>' +
-    '<td>' + r.ci + '</td>' +
-    '<td>' + (r.telefono || '-') + '</td>' +
-    '<td>' + r.motivo + '</td>' +
-    '<td>' + r.funcionario + '</td>' +
-    // Aquí aplicamos saltos de línea y ajuste de texto
-    '<td style="white-space: normal; word-wrap: break-word; min-width: 250px; text-align: justify;">' + obs + '</td>' +
-    '<td>' +
-      // Selector para cambiar el estado
-      '<select onchange="cambiarEstado(' + r.id + ', this.value, this)">' +
-        '<option value="En espera" ' + (r.estado==='En espera'?'selected':'') + '>En espera</option>' +
-        '<option value="Atendido" ' + (r.estado==='Atendido'?'selected':'') + '>Atendido</option>' +
-        '<option value="Derivado" ' + (r.estado==='Derivado'?'selected':'') + '>Derivado</option>' +
-        '<option value="Cancelado" ' + (r.estado==='Cancelado'?'selected':'') + '>Cancelado</option>' +
-      '</select>' +
-    '</td>' +
-    '</tr>';
-});
+  cacheRegistros.forEach(r => {
+    const badge = 'b-' + r.estado.toLowerCase().replace(/\s/g,'');
+    const horaCorta = r.hora ? r.hora.split('.')[0].slice(0, 5) : ''; 
+    const obs = r.observaciones || '-';
+    
+    tbody.innerHTML += '<tr>' +
+      '<td><strong>#' + r.turno + '</strong></td>' +
+      '<td>' + r.fecha + '</td>' +
+      '<td>' + horaCorta + '</td>' +
+      '<td>' + r.nombre + '</td>' +
+      '<td>' + r.ci + '</td>' +
+      '<td>' + (r.telefono || '-') + '</td>' +
+      '<td>' + (r.rol || '-') + '</td>' +
+      '<td>' + r.motivo + '</td>' +
+      '<td>' + r.funcionario + '</td>' +
+      '<td style="white-space: normal; word-wrap: break-word; min-width: 200px; text-align: justify;">' + obs + '</td>' +
+      '<td>' +
+        '<select onchange="cambiarEstado(' + r.id + ', this.value, this)">' +
+          '<option value="En espera" ' + (r.estado==='En espera'?'selected':'') + '>En espera</option>' +
+          '<option value="Atendido" ' + (r.estado==='Atendido'?'selected':'') + '>Atendido</option>' +
+          '<option value="Derivado" ' + (r.estado==='Derivado'?'selected':'') + '>Derivado</option>' +
+          '<option value="Cancelado" ' + (r.estado==='Cancelado'?'selected':'') + '>Cancelado</option>' +
+        '</select>' +
+      '</td>' +
+      '</tr>';
+  });
 }
 
 // Función para actualizar el estado en Supabase
 window.cambiarEstado = async function(id, nuevoEstado, selectElement) {
-  selectElement.disabled = true; // Bloqueamos mientras guarda
+  selectElement.disabled = true;
   
   const { error } = await supabaseClient
     .from('entrevistas')
@@ -89,9 +86,9 @@ window.cambiarEstado = async function(id, nuevoEstado, selectElement) {
     
   if (error) {
     alert('Error al cambiar estado: ' + error.message);
-    cargar(); // Si falla, recargamos la tabla
+    cargar();
   } else {
-    selectElement.disabled = false; // Desbloqueamos si tuvo éxito
+    selectElement.disabled = false;
   }
 }
 
@@ -104,7 +101,7 @@ document.getElementById('formFiltros').addEventListener('submit', (e) => {
 // Exportar a CSV
 document.getElementById('btnExportar').addEventListener('click', () => {
   if (!cacheRegistros.length) return alert('No hay registros.');
-  const head = 'Turno,Fecha,Hora,Nombre,CI,Telefono,Motivo,Funcionario,Observaciones,Estado\n';
+  const head = 'Turno,Fecha,Hora,Nombre,CI,Celular,Rol,Motivo,Funcionario,Observaciones,Estado\n';
   const filas = cacheRegistros.map(r =>
     [
       r.turno, 
@@ -113,6 +110,7 @@ document.getElementById('btnExportar').addEventListener('click', () => {
       r.nombre, 
       r.ci, 
       r.telefono || '',
+      r.rol || '',
       r.motivo, 
       r.funcionario, 
       r.observaciones || '',
