@@ -9,27 +9,21 @@ function actualizarReloj() {
 setInterval(actualizarReloj, 1000);
 actualizarReloj();
 
-// Stats del dia (Corregido para usar fecha local exacta)
+// Stats Generales (Cuenta todos los registros para evitar errores de zona horaria)
 async function cargarStats() {
-  // 1. Calculamos la fecha local en formato YYYY-MM-DD
-  const d = new Date();
-  const anio = d.getFullYear();
-  const mes = String(d.getMonth() + 1).padStart(2, '0');
-  const dia = String(d.getDate()).padStart(2, '0');
-  const hoy = `${anio}-${mes}-${dia}`;
-
-  // 2. Buscamos en Supabase usando esa fecha exacta
-  const { count: total } = await supabaseClient
-    .from('entrevistas').select('*', { count:'exact', head:true })
-    .eq('fecha', hoy);
+  const { count: total, error: e1 } = await supabaseClient
+    .from('entrevistas').select('*', { count:'exact', head:true });
     
-  const { count: espera } = await supabaseClient
+  const { count: espera, error: e2 } = await supabaseClient
     .from('entrevistas').select('*', { count:'exact', head:true })
-    .eq('fecha', hoy).eq('estado', 'En espera');
+    .eq('estado', 'En espera');
 
-  // 3. Pintamos los resultados
-  document.getElementById('statHoy').textContent = total ?? 0;
-  document.getElementById('statEspera').textContent = espera ?? 0;
+  if (!e1 && !e2) {
+    document.getElementById('statHoy').textContent = total ?? 0;
+    document.getElementById('statEspera').textContent = espera ?? 0;
+  } else {
+    console.error("Error al cargar stats:", e1 || e2);
+  }
 }
 cargarStats();
 
@@ -49,7 +43,6 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
 
   // 2. Capturar y formatear la hora
   let horaSeleccionada = document.getElementById('horaAtencion').value;
-  // Si la hora tiene formato HH:MM (5 caracteres), le agregamos los segundos
   if (horaSeleccionada.length === 5) {
       horaSeleccionada = horaSeleccionada + ':00';
   }
@@ -80,7 +73,6 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
 
   if (error) {
     msg.className = 'mensaje error';
-    // Si la base de datos dice que la hora está ocupada
     if (error.code === '23505') {
       msg.textContent = 'Esa hora ya fue reservada por otra persona. Por favor elige otra.';
     } else {
@@ -89,12 +81,11 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
   } else {
     const row = Array.isArray(data) ? data[0] : data;
     msg.className = 'mensaje ok';
-    // Usamos row.v_hora porque así se llama la variable en la base de datos
     msg.innerHTML = '<strong>Turno N ' + row.turno + '</strong> registrado.<br>Hora asignada: ' + row.v_hora;
     
     e.target.reset();
     
-    // Actualizamos los contadores de arriba automáticamente sin recargar la página
+    // Actualizamos los contadores inmediatamente
     setTimeout(() => {
         cargarStats();
     }, 500); 
