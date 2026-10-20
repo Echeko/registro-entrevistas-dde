@@ -33,18 +33,21 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
   const btn = document.getElementById('btnRegistrar');
   const msg = document.getElementById('mensaje');
   
-  // 1. Validar día de la semana (0=Domingo, 6=Sábado)
-  const hoy = new Date();
-  if (hoy.getDay() === 0 || hoy.getDay() === 6) {
+   // 1. Validar día de la semana de la FECHA SELECCIONADA
+  const fechaSeleccionada = document.getElementById('fechaAtencion').value;
+  if (!fechaSeleccionada) {
+    msg.className = 'mensaje error';
+    msg.textContent = 'Debe seleccionar una fecha.';
+    return;
+  }
+  
+  const [year, month, day] = fechaSeleccionada.split('-');
+  const fechaObj = new Date(year, month - 1, day); // Mes en JS empieza en 0
+  
+  if (fechaObj.getDay() === 0 || fechaObj.getDay() === 6) {
     msg.className = 'mensaje error';
     msg.textContent = 'Solo se permiten registros de Lunes a Viernes.';
     return;
-  }
-
-  // 2. Capturar y formatear la hora
-  let horaSeleccionada = document.getElementById('horaAtencion').value;
-  if (horaSeleccionada.length === 5) {
-      horaSeleccionada = horaSeleccionada + ':00';
   }
 
   // 3. Validar que la hora esté en el rango de 08:00 a 16:00
