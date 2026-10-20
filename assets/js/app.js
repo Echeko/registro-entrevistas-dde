@@ -1,4 +1,4 @@
-// Reloj en vivo y bloqueo de fechas pasadas
+// Reloj en vivo
 function actualizarReloj() {
   const d = new Date();
   document.getElementById('fechaActual').textContent =
@@ -13,7 +13,7 @@ actualizarReloj();
 const inputFecha = document.getElementById('fechaAtencion');
 if (inputFecha) {
   const hoyStr = new Date().toISOString().split('T')[0];
-  inputFecha.min = hoyStr; // No permite fechas anteriores a hoy
+  inputFecha.min = hoyStr; 
 }
 
 // Stats Generales
@@ -85,10 +85,18 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
     return;
   }
 
+  // 4. Validar descripción del caso
+  const descripcionVal = document.getElementById('observaciones').value.trim();
+  if (descripcionVal.length < 5) {
+    msg.className = 'mensaje error';
+    msg.textContent = 'Por favor, describa brevemente su caso (mínimo 5 letras).';
+    return;
+  }
+
   btn.disabled = true; btn.textContent = 'Guardando...';
   msg.className = 'mensaje'; msg.style.display = 'none';
 
-  // 4. Enviamos los datos a Supabase
+  // 5. Enviamos los datos a Supabase
   const { data, error } = await supabaseClient.rpc('registrar_entrevista', {
     p_nombre:      document.getElementById('nombre').value.trim(),
     p_ci:          ciVal,
@@ -96,10 +104,10 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
     p_motivo:      document.getElementById('motivo').value,
     p_funcionario: document.getElementById('funcionario').value.trim(),
     p_area:        document.getElementById('area').value.trim(),
-    p_observaciones: document.getElementById('observaciones').value.trim(),
+    p_observaciones: descripcionVal,
     p_hora:        horaSeleccionada,
     p_rol:         document.getElementById('rol').value,
-    p_fecha:       fechaSeleccionada // Enviamos la fecha elegida
+    p_fecha:       fechaSeleccionada
   });
 
   btn.disabled = false; btn.textContent = 'Registrar Entrevista';
@@ -117,7 +125,6 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
     msg.innerHTML = '<strong>Turno N ' + row.turno + '</strong> registrado.<br>Para el día: ' + fechaSeleccionada + ' a las ' + row.v_hora;
     
     e.target.reset();
-    // Volvemos a aplicar la restricción de fecha mínima después de limpiar el formulario
     inputFecha.min = new Date().toISOString().split('T')[0];
     
     setTimeout(() => { cargarStats(); }, 500); 
