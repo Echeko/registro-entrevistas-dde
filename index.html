@@ -24,10 +24,12 @@
     <div class="grid-2">
       <div class="campo"><label>Nombre completo *</label>
         <input type="text" id="nombre" required minlength="3" maxlength="150"></div>
-      <div class="campo"><label>CI / Documento *</label>
-        <input type="text" id="ci" required maxlength="30"></div>
-      <div class="campo"><label>Telefono</label>
-        <input type="tel" id="telefono" maxlength="30"></div>
+  <div class="campo"><label>CI / Documento *</label>
+  <!-- De 6 a 8 números -->
+  <input type="text" id="ci" required maxlength="8" minlength="6" pattern="[0-9]{6,8}" title="El CI debe tener entre 6 y 8 números" placeholder="Ej: 123456"></div>
+  <div class="campo"><label>Celular</label>
+  <!-- Exactamente 8 números -->
+  <input type="tel" id="telefono" maxlength="8" minlength="8" pattern="[0-9]{8}" title="El celular debe tener exactamente 8 números" placeholder="Ej: 71234567"></div>
       <div class="campo"><label>Motivo *</label>
         <select id="motivo" required>
           <option value="">-- Seleccione --</option>
