@@ -1,10 +1,10 @@
 // Reloj en vivo
 function actualizarReloj() {
-  const d = new Date();
-  document.getElementById('fechaActual').textContent =
-    d.toLocaleDateString('es-BO', { day:'2-digit', month:'long', year:'numeric' });
-  document.getElementById('horaActual').textContent =
-    d.toLocaleTimeString('es-BO');
+// Bloquear fechas pasadas en el selector
+const inputFecha = document.getElementById('fechaAtencion');
+if (inputFecha) {
+  const hoyStr = new Date().toISOString().split('T')[0];
+  inputFecha.min = hoyStr; // El usuario no podrá elegir días anteriores a hoy
 }
 setInterval(actualizarReloj, 1000);
 actualizarReloj();
