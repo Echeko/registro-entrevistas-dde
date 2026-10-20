@@ -87,16 +87,25 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
     // Le damos medio segundo a Supabase para que guarde y luego actualizamos
     setTimeout(() => {
         // Stats generales (sin filtro de fecha)
+// Stats del dia (Corregido para usar fecha local exacta)
 async function cargarStats() {
-  // Contamos TODOS los registros
+  // 1. Calculamos la fecha local en formato YYYY-MM-DD
+  const d = new Date();
+  const anio = d.getFullYear();
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
+  const dia = String(d.getDate()).padStart(2, '0');
+  const hoy = `${anio}-${mes}-${dia}`;
+
+  // 2. Buscamos en Supabase usando esa fecha exacta
   const { count: total } = await supabaseClient
-    .from('entrevistas').select('*', { count:'exact', head:true });
+    .from('entrevistas').select('*', { count:'exact', head:true })
+    .eq('fecha', hoy);
     
-  // Contamos TODOS los que están en espera
   const { count: espera } = await supabaseClient
     .from('entrevistas').select('*', { count:'exact', head:true })
-    .eq('estado', 'En espera');
+    .eq('fecha', hoy).eq('estado', 'En espera');
 
+  // 3. Pintamos los resultados
   document.getElementById('statHoy').textContent = total ?? 0;
   document.getElementById('statEspera').textContent = espera ?? 0;
 }
