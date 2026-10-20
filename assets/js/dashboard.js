@@ -12,20 +12,23 @@ document.getElementById('btnSalir').addEventListener('click', async (e) => {
 
 (async () => {
   // Obtenemos la fecha local correcta
-const d = new Date();
-const anio = d.getFullYear();
-const mes = String(d.getMonth() + 1).padStart(2, '0');
-const dia = String(d.getDate()).padStart(2, '0');
-const hoy = `${anio}-${mes}-${dia}`;
-  const mes = hoy.slice(0, 7);
-  const anio = hoy.slice(0, 4);
+  const d = new Date();
+  const anio = d.getFullYear();
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
+  const dia = String(d.getDate()).padStart(2, '0');
+  const hoy = `${anio}-${mes}-${dia}`;
+  
+  // Variables para las consultas del mes y año
+  const mesActual = hoy.slice(0, 7);
+  const anioActual = hoy.slice(0, 4);
+
   const base = () => supabaseClient.from('entrevistas').select('*', { count:'exact', head:true });
 
   async function contar(q) { const { count } = await q; return count ?? 0; }
 
   document.getElementById('kHoy').textContent      = await contar(base().eq('fecha', hoy));
-  document.getElementById('kMes').textContent      = await contar(base().gte('fecha', mes+'-01').lte('fecha', mes+'-31'));
-  document.getElementById('kAnio').textContent     = await contar(base().gte('fecha', anio+'-01-01').lte('fecha', anio+'-12-31'));
+  document.getElementById('kMes').textContent      = await contar(base().gte('fecha', mesActual+'-01').lte('fecha', mesActual+'-31'));
+  document.getElementById('kAnio').textContent     = await contar(base().gte('fecha', anioActual+'-01-01').lte('fecha', anioActual+'-12-31'));
   document.getElementById('kEspera').textContent   = await contar(base().eq('fecha', hoy).eq('estado','En espera'));
   document.getElementById('kAtendido').textContent = await contar(base().eq('fecha', hoy).eq('estado','Atendido'));
 
@@ -35,7 +38,6 @@ const hoy = `${anio}-${mes}-${dia}`;
   const tbody = document.getElementById('tablaUltimos');
   (data || []).forEach(r => {
     const badge = 'b-' + r.estado.toLowerCase().replace(/\s/g,'');
-    // ⚠️ AQUÍ ESTÁ EL CAMBIO: Usamos .slice(0, 5) para cortar en HH:MM
     const horaCorta = r.hora ? r.hora.slice(0, 5) : ''; 
     
     tbody.innerHTML += '<tr>' +
