@@ -77,7 +77,7 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
   msg.className = 'mensaje'; msg.style.display = 'none';
 
   // 5. Enviamos los datos a Supabase (Incluyendo el Rol)
-  const { data, error } = await supabaseClient.rpc('registrar_entrevista', {
+    const { data, error } = await supabaseClient.rpc('registrar_entrevista', {
     p_nombre:      document.getElementById('nombre').value.trim(),
     p_ci:          ciVal,
     p_telefono:    telVal,
@@ -86,7 +86,8 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
     p_area:        document.getElementById('area').value.trim(),
     p_observaciones: document.getElementById('observaciones').value.trim(),
     p_hora:        horaSeleccionada,
-    p_rol:         document.getElementById('rol').value
+    p_rol:         document.getElementById('rol').value,
+    p_fecha:       fechaSeleccionada // <-- NUEVA LÍNEA
   });
 
   btn.disabled = false; btn.textContent = 'Registrar Entrevista';
