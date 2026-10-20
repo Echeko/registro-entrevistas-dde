@@ -9,15 +9,25 @@ function actualizarReloj() {
 setInterval(actualizarReloj, 1000);
 actualizarReloj();
 
-// Stats del dia
+// Stats del dia (Corregido para usar fecha local exacta)
 async function cargarStats() {
-  const hoy = new Date().toISOString().split('T')[0];
+  // 1. Calculamos la fecha local en formato YYYY-MM-DD
+  const d = new Date();
+  const anio = d.getFullYear();
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
+  const dia = String(d.getDate()).padStart(2, '0');
+  const hoy = `${anio}-${mes}-${dia}`;
+
+  // 2. Buscamos en Supabase usando esa fecha exacta
   const { count: total } = await supabaseClient
     .from('entrevistas').select('*', { count:'exact', head:true })
     .eq('fecha', hoy);
+    
   const { count: espera } = await supabaseClient
     .from('entrevistas').select('*', { count:'exact', head:true })
     .eq('fecha', hoy).eq('estado', 'En espera');
+
+  // 3. Pintamos los resultados
   document.getElementById('statHoy').textContent = total ?? 0;
   document.getElementById('statEspera').textContent = espera ?? 0;
 }
@@ -76,40 +86,17 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
     } else {
       msg.textContent = 'Error: ' + error.message;
     }
-} else {
+  } else {
     const row = Array.isArray(data) ? data[0] : data;
     msg.className = 'mensaje ok';
+    // Usamos row.v_hora porque así se llama la variable en la base de datos
     msg.innerHTML = '<strong>Turno N ' + row.turno + '</strong> registrado.<br>Hora asignada: ' + row.v_hora;
     
     e.target.reset();
     
-    // ⚠️ AQUÍ ESTÁ LA MAGIA: Forzamos a que se actualicen los contadores
-    // Le damos medio segundo a Supabase para que guarde y luego actualizamos
+    // Actualizamos los contadores de arriba automáticamente sin recargar la página
     setTimeout(() => {
-        // Stats generales (sin filtro de fecha)
-// Stats del dia (Corregido para usar fecha local exacta)
-async function cargarStats() {
-  // 1. Calculamos la fecha local en formato YYYY-MM-DD
-  const d = new Date();
-  const anio = d.getFullYear();
-  const mes = String(d.getMonth() + 1).padStart(2, '0');
-  const dia = String(d.getDate()).padStart(2, '0');
-  const hoy = `${anio}-${mes}-${dia}`;
-
-  // 2. Buscamos en Supabase usando esa fecha exacta
-  const { count: total } = await supabaseClient
-    .from('entrevistas').select('*', { count:'exact', head:true })
-    .eq('fecha', hoy);
-    
-  const { count: espera } = await supabaseClient
-    .from('entrevistas').select('*', { count:'exact', head:true })
-    .eq('fecha', hoy).eq('estado', 'En espera');
-
-  // 3. Pintamos los resultados
-  document.getElementById('statHoy').textContent = total ?? 0;
-  document.getElementById('statEspera').textContent = espera ?? 0;
-}
-cargarStats();
+        cargarStats();
     }, 500); 
   }
 });
