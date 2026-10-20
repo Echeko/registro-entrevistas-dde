@@ -102,8 +102,8 @@ document.getElementById('formRegistro').addEventListener('submit', async (e) => 
     p_ci:          ciVal,
     p_telefono:    telVal,
     p_motivo:      document.getElementById('motivo').value,
-    p_funcionario: document.getElementById('funcionario').value.trim(),
-    p_area:        document.getElementById('area').value.trim(),
+    p_funcionario: "Por asignar", // Ponemos esto por defecto para que no falle la base de datos
+    p_area:        document.getElementById('area').value,
     p_observaciones: descripcionVal,
     p_hora:        horaSeleccionada,
     p_rol:         document.getElementById('rol').value,
